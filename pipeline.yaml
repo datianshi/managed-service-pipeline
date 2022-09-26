@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: create-openshift
+spec:
+  description: | 
+    This pipeline creates managed OpenShift and day2 stuff
+  params:
+  - name: repo-url
+    type: string
+    description: The git repo URL to clone from.
+  workspaces:
+  - name: workspace
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: workspace
+    params:
+    - name: url
+      value: $(params.repo-url)
+  - name: terraform-plan
+    taskRef:
+      name: terraform-cli
+    workspaces:
+    - name: source
+      workspace: workspace
+    params:
+     - name: ARGS
+       value:
+         - plan

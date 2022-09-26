@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: terraform-
+spec:
+  params:
+  - name: repo-url
+    value: "https://github.com/datianshi/managed-service-pipeline"
+  pipelineRef:
+    name: create-openshift
