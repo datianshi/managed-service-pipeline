@@ -1,4 +1,13 @@
+
 variable cluster_name {
+    type = string
+}
+
+variable resource_group {
+    type = string
+}
+
+variable location {
     type = string
 }
 
@@ -27,26 +36,26 @@ variable "tags" {
 
 resource "azurerm_virtual_network" "this" {
     name                = "${var.cluster_name}-vnet"
-    location            = azurerm_resource_group.main.location
-    resource_group_name = azurerm_resource_group.main.name
+    location            = var.location
+    resource_group_name = var.resource_group
     address_space       = [var.aro_virtual_network_cidr_block]
     tags                = var.tags
 }
 
 resource "azurerm_subnet" "control_plane_subnet" {
   name                    = "${var.cluster_name}-cp-subnet"
-  resource_group_name     = azurerm_resource_group.main.name
-  virtual_network_name    = azurerm_virtual_network.main.name
+  resource_group_name     = var.resource_group
+  virtual_network_name    = azurerm_virtual_network.this.name
   address_prefixes        = [var.aro_control_subnet_cidr_block]
   service_endpoints       = ["Microsoft.Storage", "Microsoft.ContainerRegistry"]
-  enforce_private_link_service_network_policies = true
-  enforce_private_link_endpoint_network_policies = true
+  private_link_service_network_policies_enabled = true
+  private_endpoint_network_policies_enabled = true
 }
 
 resource "azurerm_subnet" "machine_subnet" {
   name                  = "${var.cluster_name}-machine-subnet"
-  resource_group_name   = azurerm_resource_group.main.name
-  virtual_network_name  = azurerm_virtual_network.main.name
+  resource_group_name   = var.resource_group
+  virtual_network_name  = azurerm_virtual_network.this.name
   address_prefixes      = [var.aro_machine_subnet_cidr_block]
   service_endpoints     = ["Microsoft.Storage", "Microsoft.ContainerRegistry"]
 }
@@ -57,4 +66,8 @@ output control_plane_subnet {
 
 output machine_subnet {
     value = azurerm_subnet.machine_subnet.id
+}
+
+output network_id {
+    value = azurerm_virtual_network.this.id
 }

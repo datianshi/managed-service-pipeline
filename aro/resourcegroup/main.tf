@@ -1,4 +1,9 @@
+
 variable cluster_name {
+    type = string
+}
+
+variable location {
     type = string
 }
 
@@ -7,6 +12,6 @@ resource "azurerm_resource_group" "this" {
     location    = var.location
 }
 
-output id {
-    value = azurerm_resource_group.this.id
+output name {
+    value = "${var.cluster_name}-rg"
 }

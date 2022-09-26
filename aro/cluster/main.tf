@@ -11,10 +11,6 @@ variable control_plane_subnet {
     type = string
 }
 
-variable resource_group {
-    type = string
-}
-
 variable pull_secret {
     type = string
 }
@@ -58,5 +54,5 @@ resource "azureopenshift_redhatopenshift_cluster" "cluster" {
     client_id     = var.client_id
     client_secret = var.client_secret
   }
-  
+
 }

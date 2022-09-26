@@ -1,7 +1,11 @@
+
 variable cluster_name {
     type = string
 }
 
+variable network_id {
+    type = string
+}
 data "azurerm_subscription" "current" {}
 
 data "azuread_client_config" "current" {}
@@ -32,7 +36,7 @@ resource "azurerm_role_assignment" "main" {
 }
 
 resource "azurerm_role_assignment" "vnet" {
-    scope                   = data.azurerm_virtual_network.network.id
+    scope                   = var.network_id
     role_definition_name    = "Network Contributor"
     principal_id            = data.azuread_service_principal.aro_resource_provisioner.object_id
 }

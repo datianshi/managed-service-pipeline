@@ -15,18 +15,24 @@ spec:
   - name: fetch-source
     taskRef:
       name: git-clone
+      kind: ClusterTask
     workspaces:
     - name: output
       workspace: workspace
     params:
     - name: url
       value: $(params.repo-url)
+    - name: deleteExisting
+      value: "true"
   - name: terraform-plan
+    runAfter:
+    - fetch-source
     taskRef:
       name: terraform-cli
     workspaces:
     - name: source
       workspace: workspace
+      subPath: aro
     params:
      - name: ARGS
        value:
