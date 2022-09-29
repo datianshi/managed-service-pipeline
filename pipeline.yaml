@@ -34,6 +34,8 @@ spec:
       workspace: workspace
       subPath: aro
     params:
+    #  - name: image
+    #    value: "docker.io/datianshi/terraform:amd64"
      - name: ARGS
        value:
          - plan

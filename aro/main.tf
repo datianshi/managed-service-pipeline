@@ -24,10 +24,10 @@ module cluster {
     location = var.location
     pull_secret = var.pull_secret
     tags = var.tags
-    client_id = module.iam.client_id
-    client_secret = module.iam.client_secret
-    resource_group = module.rg.name
-    control_plane_subnet = module.network.control_plane_subnet
-    machine_subnet = module.network.machine_subnet
+    client_id = var.client_id
+    client_secret = var.client_secret
+    resource_group = var.resource_group
+    control_plane_subnet = var.control_plane_subnet
+    machine_subnet = var.machine_subnet
 }
 
