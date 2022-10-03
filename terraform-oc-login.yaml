@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: terraform-cli
+  name: terraform-oc-login
   labels:
     app.kubernetes.io/version: "0.2"
   annotations:
@@ -13,20 +13,16 @@ metadata:
     tekton.dev/platforms: "linux/amd64"
 spec:
   description: >-
-    Terraform is an open-source infrastructure as code software tool created by HashiCorp.
-
-    It enables users to define and provision a datacenter infrastructure using a high-level
-    configuration language known as Hashicorp Configuration Language (HCL), or optionally JSON
-
-    This Task will do a terraform init before it executes the actual configured ARGS from parameter.
+    terraform to oc login
   workspaces:
-  - name: source
+  - name: state-dir
   params:
-  - name: ARGS
-    description: The terraform cli commands to tun
-    type: array
-    default:
-    - "--help"
+  - name: extract-kube-admin-password
+    type: string
+  - name: extract-kube-admin-username
+    type: string
+  - name: extract-api-url
+    type: string    
   - name: terraform-secret
     description: The terraform secret with credentials
     type: string
@@ -34,7 +30,7 @@ spec:
   - name: image
     description: the terraform image to use
     type: string
-    default: docker.io/hashicorp/terraform:light@sha256:160c8cc975c35e9280ad36162df993f7dcc4d6f15f641af93ac0e2ceec9f980a
+    default: datianshi/aro-terraform-oc-login:amd64
   - name: httpProxy
     description: HTTP proxy server for non-SSL requests
     type: string
@@ -47,10 +43,14 @@ spec:
     description: no proxy - opt out of proxying HTTP/HTTPS requests
     type: string
     default: ""
+  results:
+  - name: kubeusername
+  - name: kubepassword
+  - name: api-url
   steps:
     - name: init
       image: $(params.image)
-      workingDir: $(workspaces.source.path)
+      workingDir: $(workspaces.state-dir.path)
       command: ["terraform"]
       env:
         - name: "HTTP_PROXY"
@@ -64,12 +64,9 @@ spec:
             name: $(params.terraform-secret)          
       args:
         - "init"
-    - name: terraform-cli
+    - name: get-login-results
       image: $(params.image)
-      workingDir: /workspace/source
-      command: ["terraform"]
-      args:
-        - "$(params.ARGS)"
+      workingDir: $(workspaces.state-dir.path)
       env:
         - name: "HTTP_PROXY"
           value: $(params.httpProxy)
@@ -80,3 +77,8 @@ spec:
       envFrom:
         - secretRef:
             name: $(params.terraform-secret)
+      script: |
+        #!/usr/bin/env sh
+        eval $(params.extract-kube-admin-username) | tee $(results.kubeusername.path) 1>/dev/null
+        eval $(params.extract-kube-admin-password) | tee $(results.kubepassword.path) 1>/dev/null
+        eval $(params.extract-api-url) | tee $(results.api-url.path) 1>/dev/null

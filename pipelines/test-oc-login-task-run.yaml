@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: oc-login-
+spec:
+  workspaces:
+  - name: state-dir
+    persistentVolumeClaim:
+      claimName: terraform
+    subPath: aro          
+  taskRef:
+    name: terraform-oc-login
+  params:
+    - name: extract-kube-admin-username
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_username'"
+    - name: extract-kube-admin-password
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_password'"
+    - name: extract-api-url
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.api_server_profile | first.url'"

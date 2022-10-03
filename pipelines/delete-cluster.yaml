@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: create-openshift
+  name: delete-cluster
 spec:
   description: | 
-    This pipeline creates managed OpenShift and day2 stuff
+    This pipeline deletes the managed cluster
   params:
   - name: repo-url
     type: string
@@ -24,7 +24,7 @@ spec:
       value: $(params.repo-url)
     - name: deleteExisting
       value: "true"
-  - name: terraform-plan
+  - name: terraform-destroy
     runAfter:
     - fetch-source
     taskRef:
@@ -34,8 +34,8 @@ spec:
       workspace: workspace
       subPath: aro
     params:
-    #  - name: image
-    #    value: "docker.io/datianshi/terraform:amd64"
      - name: ARGS
        value:
-         - plan
+         - apply
+         - -destroy
+         - -auto-approve

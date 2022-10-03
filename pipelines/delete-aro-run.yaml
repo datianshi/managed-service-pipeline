@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: delete-aro-
+spec:
+  podTemplate:
+    securityContext:
+      runAsUser: 0
+  workspaces:
+  - name: workspace
+    persistentVolumeClaim:
+      claimName: terraform
+  params:
+  - name: repo-url
+    value: "https://github.com/datianshi/managed-service-pipeline"
+  pipelineRef:
+    name: delete-cluster
