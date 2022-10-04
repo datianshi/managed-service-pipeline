@@ -64,15 +64,17 @@ spec:
       subPath: aro
     params:
     - name: extract-kube-admin-username
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_username'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_username' | tr -d '\n'"
     - name: extract-kube-admin-password
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_password'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_password' | tr -d '\n'"
     - name: extract-api-url
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.api_server_profile | first.url'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.api_server_profile | first.url' | tr -d '\n'"
   - name: deploy-operators
+    runAfter:
+    - terraform-apply  
     taskRef:
       name: openshift-client
-      kind: ClusterTask
+      kind: Task
     workspaces:
     - name: manifest-dir
       workspace: workspace
@@ -80,6 +82,6 @@ spec:
     params:
     - name: SCRIPT
       value: |
-        oc login --server=$(tasks.get-oc-login.api-url) --username $(tasks.get-oc-login.kubeusername) --password $(tasks.get-oc-login.kubepassword)
-    - name: VERSION
-      value: "4.11"
+        set -ex
+        oc login --server=$(tasks.get-oc-login.results.api-url) --username $(tasks.get-oc-login.results.kubeusername) --password $(tasks.get-oc-login.results.kubepassword)
+        oc apply -f *.yaml

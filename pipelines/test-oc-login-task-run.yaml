@@ -12,8 +12,8 @@ spec:
     name: terraform-oc-login
   params:
     - name: extract-kube-admin-username
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_username'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_username' | tr -d '\n'"
     - name: extract-kube-admin-password
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_password'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.kubeadmin_password' | tr -d '\n'"
     - name: extract-api-url
-      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.api_server_profile | first.url'"
+      value: "terraform show -json | jq -r . | jq -r '.values.root_module.child_modules | first.resources | first.values.api_server_profile | first.url' | tr -d '\n' "
